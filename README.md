@@ -1,4 +1,4 @@
-# Leaderboard: csce 315-503
+# Leaderboard: Csce 315-503
 
 -Compile with: g++ -std= main.cpp
 
