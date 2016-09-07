@@ -1,6 +1,6 @@
 # Leaderboard: Csce 315-503
 
--Compile with: g++ -std= main.cpp
+-Compile with: g++ -std=c++11 main.cpp
 
 -Run with: ./a.out > input.txt
 
