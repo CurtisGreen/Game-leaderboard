@@ -13,7 +13,7 @@ void leaderboard::ReadFile(){
 	
 	std::ifstream ifs(filename);
 	while(ifs){
-		ifs >> function >> arguments; //TODO: might fail on blank lines
+		ifs >> function >> arguments; //TODO: might 
 		Parse(function, arguments);	//determines function and parses arguments
 	}
 }
