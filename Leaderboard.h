@@ -14,7 +14,7 @@ class leaderboard{
 		int id;	//might not need to store this
 		std::string name;
 		int points;
-		std::map<int, game*> games;	//might need to call delete to remove pointers
+		std::map<int, game*> games;	
 		std::map<int, victory*> victories;
 		std::map<int, player*> friends;
 	};
@@ -41,7 +41,7 @@ class leaderboard{
 	
 	public:
 	
-	void ReadFile();
+	//void ReadFile();
 	void ReadConsole();
 	
 	//Leaderboard actions
