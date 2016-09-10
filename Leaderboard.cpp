@@ -104,13 +104,13 @@ void leaderboard::SummarizeVictory(int game_id, int vict_id){	//TODO: work out f
 	}
 }
 void leaderboard::VictoryRanking(){
-	//http://stackoverflow.com/questions/19842035/stdmap-how-to-sort-by-value-then-by-key
-	auto cmp = [](std::pair<int,player> const & a, std::pair<int,player> const & b){ 	//TODO: broken	
-		return a.second.points < b.second.points;
-	};
-	std::sort(player_map.begin(), player_map.end(), cmp);	//Might break the map
-	for (auto player_it = player_map.begin(); player_it!= player_map.end(); ++player_it){	//Print players
-		std::cout<<"Player name = "<<player_it->second.name/*<<"Points: "<<player_it.points*/<<std::endl;
+	std::map<int, player*> ranking;
+	//player* player_pointer = &(player_it->second);
+	for (auto player_it = player_map.begin(); player_it!= player_map.end(); ++player_it){	//Reorder players by points
+		ranking.insert(std::pair<int,player*>(player_it->second.points, &(player_it->second)));
+	}
+	for (auto player_it = ranking.rbegin(); player_it!= ranking.rend(); ++player_it){	//Print players in order
+		std::cout<<"Player name: "<<player_it->second->name<<"Points: "<<player_it->second->points<< "Points double check: "<<player_it->first<<std::endl;
 	}
 }
 
