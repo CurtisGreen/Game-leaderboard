@@ -9,9 +9,15 @@ class leaderboard{
 	//Data Structures
 	struct game;
 	struct victory;
+	struct ign{				//Stores data relating to specific game
+		ign(std::string name);
+		std::string username;	
+		int victories;
+		int points;			//Points per game
+	};
 	struct player{
 		player(int player_id, std::string player_name);
-		int id;	//might not need to store this
+		int id;
 		std::string name;
 		int points;
 		std::map<int, game*> games;	
@@ -22,6 +28,7 @@ class leaderboard{
 		game(int game_id, std::string game_name);
 		int id;
 		std::string name;
+		std::map<int, ign> stats;
 		std::map<int, victory*> victories;
 		std::map<int, player*> players;
 	};

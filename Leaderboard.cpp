@@ -33,13 +33,15 @@ void leaderboard::AddVictory(int game_id, int vict_id, std::string vict_name, in
 	victory new_victory(game_id, vict_id, vict_name, vict_points);
 	victory_map.insert(std::pair<int,victory>(vict_id, new_victory));
 }
-void leaderboard::Plays(int player_id, int game_id, std::string player_ign){	//Why does this need the ign?
+void leaderboard::Plays(int player_id, int game_id, std::string player_ign){	
+	ign new_ign(player_ign);
 	auto game_it = game_map.find(game_id);
 	auto player_it = player_map.find(player_id);
 	game* game_pointer = &(game_it->second);
 	player* player_pointer = &(player_it->second);
 	player_it->second.games.insert(std::pair<int,game*>(game_id, game_pointer));	//Add game to player
 	game_it->second.players.insert(std::pair<int,player*>(player_id,player_pointer));	//Add player to game
+	game_it->second.stats.insert(std::pair<int, ign>(player_id, new_ign));
 }
 void leaderboard::AddFriends(int player_id1, int player_id2){
 	auto player1_it = player_map.find(player_id1);
@@ -51,17 +53,19 @@ void leaderboard::AddFriends(int player_id1, int player_id2){
 }
 void leaderboard::WinVictory(int player_id, int game_id, int vict_id){
 	auto player_it = player_map.find(player_id);
-	//auto game_it = game_map.find(game_id);
+	auto game_it = game_map.find(game_id);
 	auto vict_it = victory_map.find(vict_id);
 	victory* vict_pointer = &(vict_it->second);
 	player* player_pointer = &(player_it->second);
-	player_it->second.points += vict_it->second.points;
+	player_it->second.points += vict_it->second.points;	//Add points to player's total
 	player_it->second.victories.insert(std::pair<int,victory*>(vict_id, vict_pointer));	//Add victory to player
 	/*for (vict_it = victory_map.begin(); vict_it!= victory_map.end(); ++vict_it){
 		std::cout<<"key = "<< vict_it->first<<" vict name = "<<vict_it->second.name<<std::endl;
 	}*/
 	vict_it->second.players.insert(std::pair<int,player*>(player_id, player_pointer));	//Add player to victory
-	//TODO: Might need to add in victories won under games
+	auto stats_it = game_it->second.stats.find(player_id);
+	stats_it->second.points += vict_it->second.points;	//Add points to player for this game
+	stats_it->second.victories += 1;
 }
 void leaderboard::FriendsWhoPlay(int player_id, int game_id){	//TODO: work out format
 	auto player_it = player_map.find(player_id);
@@ -79,10 +83,21 @@ void leaderboard::ComparePlayers(int player_id1, int player_id2){	//TODO: work o
 }
 void leaderboard::SummarizePlayer(int player_id){	//TODO: work out format
 	auto player_it = player_map.find(player_id);
-	std::cout<<"Player name: "<<player_it->second.name<<"\nPoints = "<<player_it->second.points<<std::endl;	//Print player
-	for (auto vict_it = player_it->second.victories.begin(); vict_it!= player_it->second.victories.end(); ++vict_it){	//Print victories
-		std::cout<<"key = "<< vict_it->first<<" Vict name = "<<vict_it->second->name<<std::endl;
+	std::cout<<"Player name: "<<player_it->second.name<<"\nTotal Victory Points: "<<player_it->second.points<<" pts\n"<<std::endl;	//Print player
+	std::cout <<"  Game\t\t\t Victories\tVictory Points\tIGN"<<std::endl;
+	std::cout<<"__________________________________________________________________"<<std::endl;
+	int i = 1;
+	for (auto game_it = player_it->second.games.begin(); game_it != player_it->second.games.end(); ++game_it){
+		auto ign_it = game_it->second->stats.find(player_id);
+		std::cout<<i<<". "<<game_it->second->name<<"\t\t"<<game_it->second->stats.size()<<"/";
+		std::cout<<game_it->second->victories.size()<<"\t\t"<<ign_it->second.points<<" pts\t\t";
+		std::cout<<ign_it->second.username<<std::endl;
+		i +=1;
 	}
+	/*for (auto vict_it = player_it->second.victories.begin(); vict_it!= player_it->second.victories.end(); ++vict_it){	//Print victories
+		std::cout<<"key = "<< vict_it->first<<" Vict name = "<<vict_it->second->name<<std::endl;
+	}*/
+
 	
 }
 void leaderboard::SummarizeGame(int game_id){	//TODO: work out format
@@ -241,12 +256,17 @@ void leaderboard::Parse(std::string function, std::string arguments){	//determin
 }
 
 //Constructors
-leaderboard::player::player(int player_id, std::string player_name){	//Might need leaderboard::
+leaderboard::ign::ign(std::string name){
+	username = name;
+	victories = 0;
+	points = 0;
+}
+leaderboard::player::player(int player_id, std::string player_name){	
 	points = 0;
 	id = player_id;
 	name = player_name;
 }
-leaderboard::game::game(int game_id, std::string game_name){	//Might need leaderboard::
+leaderboard::game::game(int game_id, std::string game_name){	
 	id = game_id;
 	name = game_name;
 }
