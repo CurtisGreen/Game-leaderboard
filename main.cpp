@@ -7,6 +7,8 @@
 using namespace std;	//or no namespace
 int main(){
 	leaderboard my_leaderboard;
+	my_leaderboard.ReadConsole();
+	/*
 	string answer = "";
 	while (answer != "1" && answer != "2" && answer != "q"){
 		
@@ -24,5 +26,5 @@ int main(){
 		else{
 			cout<<"Please enter either a 1 or a 2"<<endl;
 		}
-	}
+	}*/
 }
