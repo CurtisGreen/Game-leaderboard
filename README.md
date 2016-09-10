@@ -2,7 +2,7 @@
 
 -Compile with: g++ -std=c++11 main.cpp
 
--Run with: ./a.out > input.txt
+-Run with: ./a.out < input.txt
 
 -Environment: compute.cse.tamu.edu through PuTTY
 
