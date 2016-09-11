@@ -3,7 +3,6 @@
 
 #include <map>
 
-
 class leaderboard{
 	
 	//Data Structures
@@ -70,6 +69,7 @@ class leaderboard{
 	
 	
 };
+
 #endif
 
 

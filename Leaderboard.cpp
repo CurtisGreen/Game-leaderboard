@@ -2,8 +2,7 @@
 #include <string>
 #include <algorithm>
 #include <iomanip>
-//#include <fstream>
-//use a graph for player friends
+
 
 void leaderboard::ReadConsole(){
 	std::string function;
