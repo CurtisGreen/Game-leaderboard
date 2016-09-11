@@ -9,7 +9,7 @@ class leaderboard{
 	//Data Structures
 	struct game;
 	struct victory;
-	struct ign{				//Stores data relating to specific game
+	struct ign{				//Stores player data relating to specific game
 		ign(std::string name);
 		std::string username;	
 		int victories;
@@ -48,9 +48,10 @@ class leaderboard{
 	
 	public:
 	
-	//void ReadFile();
 	void ReadConsole();
 	
+	private:
+
 	//Leaderboard actions
 	void AddPlayer(int player_id, std::string player_name);
 	void AddGame(int game_id, std::string game_name);
@@ -59,7 +60,7 @@ class leaderboard{
 	void AddFriends(int player_id1, int player_id2);
 	void WinVictory(int player_id, int game_id, int vict_id);
 	void FriendsWhoPlay(int player_id, int game_id);
-	void ComparePlayers(int player_id1, int player_id2);
+	void ComparePlayers(int player_id1, int player_id2, int game_id);
 	void SummarizePlayer(int player_id);
 	void SummarizeGame(int game_id);
 	void SummarizeVictory(int game_id, int vict_id);

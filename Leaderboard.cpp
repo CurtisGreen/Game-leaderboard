@@ -1,6 +1,7 @@
 #include "Leaderboard.h"
 #include <string>
 #include <algorithm>
+#include <iomanip>
 //#include <fstream>
 //use a graph for player friends
 
@@ -67,7 +68,7 @@ void leaderboard::WinVictory(int player_id, int game_id, int vict_id){
 	stats_it->second.points += vict_it->second.points;	//Add points to player for this game
 	stats_it->second.victories += 1;
 }
-void leaderboard::FriendsWhoPlay(int player_id, int game_id){	//TODO: work out format
+void leaderboard::FriendsWhoPlay(int player_id, int game_id){	
 	auto player_it = player_map.find(player_id);
 	for (auto friend_it = player_it->second.friends.begin(); friend_it != player_it->second.friends.end(); ++friend_it){
 		auto found = friend_it->second->games.find(game_id);	//Search friends' games
@@ -76,63 +77,98 @@ void leaderboard::FriendsWhoPlay(int player_id, int game_id){	//TODO: work out f
 		}
 	}
 }
-void leaderboard::ComparePlayers(int player_id1, int player_id2){	//TODO: work out format
+void leaderboard::ComparePlayers(int player_id1, int player_id2, int game_id){	
 	auto player_it1 = player_map.find(player_id1);
 	auto player_it2 = player_map.find(player_id2);
+	auto game_it = game_map.find(game_id);
+	auto stats_it1 = game_it->second.stats.find(player_id1);
+	auto stats_it2 = game_it->second.stats.find(player_id2);
+	int length = player_it1->second.name.length();
+	//Text formatting
+	std::cout<<'\n'<<player_it1->second.name<<" vs "<<player_it2->second.name<<" in "<<game_it->second.name<<std::endl;	
+	std::cout <<"  Player\t     Victories\tVictory Points\tIGN"<<std::endl;
+	std::cout<<"_________________________________________________________________________________"<<std::endl;
+	std::cout<<std::internal<<std::setw(1)<<1<<". "<<player_it1->second.name<<" "<<std::setw(20-length);//Print player1
+	std::cout<<stats_it1->second.victories<<"/";	
+	std::cout<<game_it->second.victories.size()<<std::setw(8)<<" "<<stats_it1->second.points<<" pts";
+	length = (std::to_string(stats_it1->second.points).length());
+	std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it1->second.username<<std::endl;
+	length = player_it2->second.name.length();
+	std::cout<<std::internal<<std::setw(1)<<2<<". "<<player_it2->second.name<<" "<<std::setw(20-length)<<stats_it2->second.victories<<"/";	//Print player2
+	std::cout<<game_it->second.victories.size()<<std::setw(8)<<" "<<stats_it2->second.points<<" pts";
+	length = (std::to_string(stats_it2->second.points).length());
+	std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it2->second.username<<'\n'<<std::endl;
 }
-void leaderboard::SummarizePlayer(int player_id){	//TODO: work out format
+void leaderboard::SummarizePlayer(int player_id){	
 	auto player_it = player_map.find(player_id);
-	std::cout<<"\nPlayer name: "<<player_it->second.name<<"\nTotal Victory Points: "<<player_it->second.points<<" pts\n"<<std::endl;	//Print player
-	std::cout <<"  Game\t\t\t Victories\tVictory Points\tIGN"<<std::endl;
+	std::cout<<"\nPlayer name: "<<player_it->second.name<<"\nTotal Victory Points: "<<player_it->second.points<<" pts\n"<<std::endl; //Print player
+	std::cout <<"  Game\t\t Victories\tVictory Points\tIGN"<<std::endl;
 	std::cout<<"_________________________________________________________________________"<<std::endl;
 	int i = 1;
-	for (auto game_it = player_it->second.games.begin(); game_it != player_it->second.games.end(); ++game_it){
-		auto ign_it = game_it->second->stats.find(player_id);
-		std::cout<<i<<". "<<game_it->second->name<<"\t\t"<<ign_it->second.victories<<"/";
-		std::cout<<game_it->second->victories.size()<<"\t\t"<<ign_it->second.points<<" pts\t\t";
-		std::cout<<ign_it->second.username<<std::endl;
+	for (auto game_it = player_it->second.games.begin(); game_it != player_it->second.games.end(); ++game_it){	//Print games & victories
+		auto stats_it = game_it->second->stats.find(player_id);
+		int length = game_it->second->name.length();
+		//Text formatting
+		std::cout<<std::internal<<std::setw(1)<<i<<". "<<game_it->second->name<<" "<<std::setw(20-length)<<stats_it->second.victories<<"/";
+		std::cout<<game_it->second->victories.size()<<std::setw(8)<<" "<<stats_it->second.points<<" pts";
+		length = (std::to_string(stats_it->second.points).length());
+		std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it->second.username<<std::endl;
 		i +=1;
 	}
-	std::cout<<"\n  Friend\t\tVictory Points"<<std::endl;
+	std::cout<<"\n  Friend\t   Victory Points"<<std::endl;
 	std::cout<<"____________________________________________"<<std::endl;
 	i = 1;
-	for (auto friend_it = player_it->second.friends.begin(); friend_it != player_it->second.friends.end(); ++friend_it){
-		std::cout<<i<<". "<<friend_it->second->name<<"\t"<<friend_it->second->points<<std::endl;
+	for (auto friend_it = player_it->second.friends.begin(); friend_it != player_it->second.friends.end(); ++friend_it){	//Print friends
+		std::cout<<std::setw(1)<<std::left <<i<<". "<<friend_it->second->name<<std::setw(23-friend_it->second->name.length())<<" ";
+		std::cout<<friend_it->second->points<<std::endl;
+		i +=1;
+	}
+	std::cout<<'\n';	
+}
+void leaderboard::SummarizeGame(int game_id){
+	auto game_it = game_map.find(game_id);
+	std::cout<<"Game name: "<<game_it->second.name<<std::endl;	//Print game
+	std::cout <<"  Player\t     Victories\t Victory Points\t    IGN"<<std::endl;
+	std::cout<<"_____________________________________________________________________________"<<std::endl;
+	int i = 1;
+	for (auto player_it = game_it->second.players.begin(); player_it!= game_it->second.players.end(); ++player_it){	//Print players
+		auto stats_it = game_it->second.stats.find(player_it->first);
+		int length = player_it->second->name.length();
+		//Text formatting
+		std::cout<<std::internal<<std::setw(1)<<i<<". "<<player_it->second->name<<" "<<std::setw(23-length)<<stats_it->second.victories<<"/";		
+		std::cout<<game_it->second.victories.size()<<std::setw(8)<<" "<<stats_it->second.points<<" pts";
+		length = (std::to_string(stats_it->second.points).length());
+		std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it->second.username<<std::endl;
 		i +=1;
 	}
 	std::cout<<'\n';
-	/*for (auto vict_it = player_it->second.victories.begin(); vict_it!= player_it->second.victories.end(); ++vict_it){	//Print victories
-		std::cout<<"key = "<< vict_it->first<<" Vict name = "<<vict_it->second->name<<std::endl;
-	}*/
-
 	
 }
-void leaderboard::SummarizeGame(int game_id){	//TODO: work out format
-	auto game_it = game_map.find(game_id);
-	std::cout<<"Game name: "<<game_it->second.name<<std::endl;	//Print game
-	for (auto vict_it = game_it->second.victories.begin(); vict_it!= game_it->second.victories.end(); ++vict_it){	//Print victories
-		std::cout<<"key = "<< vict_it->first<<" Vict name = "<<vict_it->second->name<<std::endl;
-	}
-	for (auto player_it = game_it->second.players.begin(); player_it!= game_it->second.players.end(); ++player_it){	//Print players
-		std::cout<<"Key = "<< player_it->first<<" Player name = "<<player_it->second->name<<std::endl;
-	}
-}
-void leaderboard::SummarizeVictory(int game_id, int vict_id){	//TODO: work out format
+void leaderboard::SummarizeVictory(int game_id, int vict_id){
 	auto vict_it = victory_map.find(vict_id);
 	auto game_it = game_map.find(game_id);
-	std::cout<<"Victory name: "<<vict_it->second.name<<" Game name: "<<game_it->second.name<<std::endl;	//Print victory & game names
-	for (auto player_it = vict_it->second.players.begin(); player_it!= vict_it->second.players.end(); ++player_it){	//Print players
-		std::cout<<"Key = "<< player_it->first<<" Player name = "<<player_it->second->name<<std::endl;
+	//Text formatting
+	std::cout<<"\nVictory name: "<<vict_it->second.name<<"\nGame: "<<game_it->second.name<<" for ";	//Print victory & game names
+	std::cout<<vict_it->second.points<<" pts"<<std::endl;	
+	int i = 1;
+	std::cout<<"______________________________________"<<std::endl;
+	for (auto player_it = vict_it->second.players.begin(); player_it!= vict_it->second.players.end(); ++player_it){ //Print players
+		std::cout<<i<<". "<<player_it->second->name<<std::endl;
+		i += 1;
 	}
+	std::cout<<'\n';
 }
 void leaderboard::VictoryRanking(){
 	std::map<int, player*> ranking;
-	//player* player_pointer = &(player_it->second);
 	for (auto player_it = player_map.begin(); player_it!= player_map.end(); ++player_it){	//Reorder players by points
 		ranking.insert(std::pair<int,player*>(player_it->second.points, &(player_it->second)));
 	}
+	int i = 1;
+	std::cout<<"\n Player \t\t Points"<<std::endl;
+	std::cout<<"______________________________________"<<std::endl;
 	for (auto player_it = ranking.rbegin(); player_it!= ranking.rend(); ++player_it){	//Print players in order
-		std::cout<<"Player name: "<<player_it->second->name<<"Points: "<<player_it->second->points<< "Points double check: "<<player_it->first<<std::endl;
+		std::cout <<std::setw(1)<<std::left <<i<<". "<<player_it->second->name<<std::setw(23-player_it->second->name.length())<<" "<<player_it->second->points<<std::endl;
+		i++;
 	}
 }
 
@@ -140,118 +176,93 @@ void leaderboard::VictoryRanking(){
 void leaderboard::Parse(std::string function, std::string arguments){	//determines function and parses arguments
 	
 	if (function == "AddPlayer"){
-		//std::cout<<"\nAddPlayer"<<std::endl;
 		int position = arguments.find("\"");
 		std::string player_id = arguments.substr(0,position-1);	//Get player_id
 		std::string player_name = arguments.substr(position+1, arguments.length()-2-position);	//Get player_name
-		//std::cout <<"id = " <<player_id<< " name = " <<player_name<<std::endl;
 
 		AddPlayer(std::stoi(player_id), player_name);
 	}
 	else if (function == "AddGame"){
-		//std::cout<<"\nAddGame"<<std::endl;
 		int position = arguments.find("\"");
 		std::string game_id = arguments.substr(0,position-1);	//Get game_id
 		std::string game_name = arguments.substr(position+1, arguments.length()-2-position);	//Get game_name
-		//std::cout <<"id = " <<game_id<< " name = " <<game_name<<std::endl;
 
 		AddGame(std::stoi(game_id), game_name);
 	}
 	else if (function == "AddVictory"){
-		//std::cout<<"\nAddVictory"<<std::endl;
 		int position = arguments.find(" ");
 		std::string game_id = arguments.substr(0,position);	//Get game_id
-		//std::cout<<"game id = "<<game_id<<std::endl;
 		arguments = arguments.substr(position+1, arguments.length()-1-game_id.length());
 		std::string vict_id = arguments.substr(0,position);	//Get vict_id
-		//std::cout<<"Vict id = "<<vict_id<<std::endl;
 		position = arguments.find(" ");
 		arguments = arguments.substr(position+2, arguments.length()-1-game_id.length());
 		position = arguments.find("\"");
 		std::string vict_name = arguments.substr(0,position); //Get vict_name
-		//std::cout<<"vict name = "<<vict_name<<std::endl;
 		std::string vict_points = arguments.substr(vict_name.length()+1, arguments.length()-1-vict_name.length());	//Get vict_points
-		//std::cout<<"Vict points = " <<vict_points<<std::endl;
 
 		AddVictory(std::stoi(game_id), std::stoi(vict_id), vict_name, std::stoi(vict_points));
 	}
-	else if (function == "Plays"){	//TODO: Parsing for ign is wrong
-		//std::cout<<"\nPlays"<<std::endl;
+	else if (function == "Plays"){
 		int position = arguments.find(" ");
 		std::string player_id = arguments.substr(0,position);	//Get player_id
-		//std::cout<<"Player id = "<<player_id<<std::endl;
 		position = arguments.find(" ");
 		arguments = arguments.substr(position+1, arguments.length()-1-player_id.length());
 		std::string game_id = arguments.substr(0,position);	//Get game_id
-		//std::cout<<"game_ id = "<<game_id<<std::endl;
 		position = arguments.find(" ");
 		std::string player_ign = arguments.substr(position+2, arguments.length()-2-game_id.length());	//Get player_ign
-		//std::cout<<"player ign = "<<player_ign<<std::endl;
 
 		Plays(std::stoi(player_id), std::stoi(game_id), player_ign);
 	}
 	else if (function == "AddFriends"){
-		//std::cout<<"\nAddFriends"<<std::endl;
 		int position = arguments.find(" ");
 		std::string player_id1 = arguments.substr(0,position);	//Get player_id1
 		std::string player_id2 = arguments.substr(position+1, arguments.length()-1-player_id1.length()); //Get player_id2
-		//std::cout<< "player_id1 = "<< player_id1 << " player_id2 = " << player_id2<<std::endl;
 		
 		AddFriends(std::stoi(player_id1), std::stoi(player_id2));
 	}
 	else if (function == "WinVictory"){
-		//std::cout<<"\nWinVictory"<<std::endl;
 		int position = arguments.find(" ");
 		std::string player_id = arguments.substr(0,position);	//Get player_id
-		//std::cout<<"Player id = "<<player_id<<std::endl;
 		arguments = arguments.substr(position+1, arguments.length()-1-player_id.length());
 		position = arguments.find(" ");
 		std::string game_id = arguments.substr(0,position);	//Get game_id
-		//std::cout<<"Game_ id = "<<game_id<<std::endl;
 		std::string vict_id = arguments.substr(position+1, arguments.length()-1-game_id.length()); //Get vict_id
-		//std::cout<<"Vict id = "<<vict_id<<std::endl;
 
 		WinVictory(std::stoi(player_id), std::stoi(game_id), std::stoi(vict_id));
 	}
 	else if (function == "FriendsWhoPlay"){	
-		//std::cout<<"\nFriendsWhoPlay"<<std::endl;
 		int position = arguments.find(" ");
 		std::string player_id = arguments.substr(0,position);	//Get player_id
 		std::string game_id = arguments.substr(position+1, arguments.length()-1-player_id.length()); //Get game_id
-		//std::cout<< "player_id = "<< player_id << "game_id = " << game_id<<std::endl;
 
 		FriendsWhoPlay(std::stoi(player_id), std::stoi(game_id));
 	}
 	else if (function == "ComparePlayers"){
-		//std::cout<<"\nComparePlayers"<<std::endl;
 		int position = arguments.find(" ");
 		std::string player_id1 = arguments.substr(0,position);	//Get player_id1
-		std::string player_id2 = arguments.substr(position+1, arguments.length()-1-player_id1.length()); //Get player_id2
-		//std::cout<< "id1 = "<< player_id1 << "id2 = " << player_id2<<std::endl;
+		arguments = arguments.substr(position+1, arguments.length()-1-player_id1.length());
+		position = arguments.find(" ");
+		std::string player_id2 = arguments.substr(0, position); //Get player_id2
+		std::string game_id = arguments.substr(position+1, arguments.length()-1-player_id2.length());
 
-		ComparePlayers(std::stoi(player_id1), std::stoi(player_id2));
+		ComparePlayers(std::stoi(player_id1), std::stoi(player_id2), std::stoi(game_id));
 	}
 	else if (function == "SummarizePlayer"){
-		//std::cout<<"\nSummarizePlayer"<<std::endl;
 		std::string player_id = arguments;	//Get player_id
 		SummarizePlayer(std::stoi(player_id));
 	}
 	else if (function == "SummarizeGame"){
-		//std::cout<<"\nSummarizeGame"<<std::endl;
 		std::string game_id = arguments;	//Get game_id
 		SummarizeGame(std::stoi(game_id));
 	}
 	else if (function == "SummarizeVictory"){
-		//std::cout<<"\nSummarizeVictory"<<std::endl;
 		int position = arguments.find(" ");
 		std::string game_id = arguments.substr(0,position);	//Get game_id
 		std::string vict_id = arguments.substr(position+1, arguments.length()-1-game_id.length()); //Get vict_id
-		//std::cout<< "game_id = "<< game_id << "vict_id = " << vict_id<<std::endl;
 
 		SummarizeVictory(std::stoi(game_id), std::stoi(vict_id));
 	}
 	else if (function == "VictoryRanking"){
-		//std::cout<<"\nVictoryRanking"<<std::endl;
 		VictoryRanking();
 	}
 	else if (function == ""){
