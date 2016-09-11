@@ -16,3 +16,5 @@
   
   * Tracks victories, who has achieved them and what game it is an achievement of
   
+  * Can take in input from a text file or from user console input
+  
