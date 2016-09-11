@@ -66,6 +66,7 @@ void leaderboard::WinVictory(int player_id, int game_id, int vict_id){
 	auto stats_it = game_it->second.stats.find(player_id);
 	stats_it->second.points += vict_it->second.points;	//Add points to player for this game
 	stats_it->second.victories += 1;
+	vict_it->second.victories += 1;
 }
 void leaderboard::FriendsWhoPlay(int player_id, int game_id){	
 	auto player_it = player_map.find(player_id);
@@ -85,12 +86,12 @@ void leaderboard::ComparePlayers(int player_id1, int player_id2, int game_id){
 	int length = player_it1->second.name.length();
 	//Text formatting
 	std::cout<<'\n'<<player_it1->second.name<<" vs "<<player_it2->second.name<<" in "<<game_it->second.name<<std::endl;	
-	std::cout <<"  Player\t     Victories\tVictory Points\tIGN"<<std::endl;
+	std::cout <<"  Player\t    Victories\t Victory Points\t IGN"<<std::endl;
 	std::cout<<"_________________________________________________________________________________"<<std::endl;
-	std::cout<<std::internal<<std::setw(1)<<1<<". "<<player_it1->second.name<<" "<<std::setw(20-length);//Print player1
+	std::cout<<std::internal<<std::setw(1)<<1<<". "<<player_it1->second.name<<" "<<std::setw(20-length);	//Print player1
 	std::cout<<stats_it1->second.victories<<"/";	
 	std::cout<<game_it->second.victories.size()<<std::setw(8)<<" "<<stats_it1->second.points<<" pts";
-	length = (std::to_string(stats_it1->second.points).length());
+	length = (std::to_string(stats_it1->second.points).length());	//length of argument so text lines up
 	std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it1->second.username<<std::endl;
 	length = player_it2->second.name.length();
 	std::cout<<std::internal<<std::setw(1)<<2<<". "<<player_it2->second.name<<" "<<std::setw(20-length)<<stats_it2->second.victories<<"/";	//Print player2
@@ -101,7 +102,7 @@ void leaderboard::ComparePlayers(int player_id1, int player_id2, int game_id){
 void leaderboard::SummarizePlayer(int player_id){	
 	auto player_it = player_map.find(player_id);
 	std::cout<<"\nPlayer name: "<<player_it->second.name<<"\nTotal Victory Points: "<<player_it->second.points<<" pts\n"<<std::endl; //Print player
-	std::cout <<"  Game\t\t Victories\tVictory Points\tIGN"<<std::endl;
+	std::cout <<"  Game\t\t  Victories\tVictory Points\tIGN"<<std::endl;
 	std::cout<<"_________________________________________________________________________"<<std::endl;
 	int i = 1;
 	for (auto game_it = player_it->second.games.begin(); game_it != player_it->second.games.end(); ++game_it){	//Print games & victories
@@ -124,10 +125,10 @@ void leaderboard::SummarizePlayer(int player_id){
 	}
 	std::cout<<'\n';	
 }
-void leaderboard::SummarizeGame(int game_id){
+void leaderboard::SummarizeGame(int game_id){	
 	auto game_it = game_map.find(game_id);
 	std::cout<<"Game name: "<<game_it->second.name<<std::endl;	//Print game
-	std::cout <<"  Player\t     Victories\t Victory Points\t    IGN"<<std::endl;
+	std::cout <<"  Player\t      Victories\t Victory Points\t    IGN"<<std::endl;
 	std::cout<<"_____________________________________________________________________________"<<std::endl;
 	int i = 1;
 	for (auto player_it = game_it->second.players.begin(); player_it!= game_it->second.players.end(); ++player_it){	//Print players
@@ -140,10 +141,19 @@ void leaderboard::SummarizeGame(int game_id){
 		std::cout<<std::left<<std::setw(10-length)<<" "<<stats_it->second.username<<std::endl;
 		i +=1;
 	}
+	i = 1;
+	std::cout <<"\n  Victory\t     Players Completed"<<std::endl;
+	std::cout<<"___________________________________________________________"<<std::endl;
+	for (auto vict_it = game_it->second.victories.begin(); vict_it != game_it->second.victories.end(); ++vict_it){
+		int length = vict_it->second->name.length();
+		std::cout<<std::setw(1)<<std::left <<i<<". "<<vict_it->second->name<<std::setw(23-length)<<" ";
+		std::cout<<vict_it->second->victories<<std::endl;
+		i +=1;
+	}
 	std::cout<<'\n';
 	
 }
-void leaderboard::SummarizeVictory(int game_id, int vict_id){
+void leaderboard::SummarizeVictory(int game_id, int vict_id){	//TODO: percentage of players who play that game who have the Victory.
 	auto vict_it = victory_map.find(vict_id);
 	auto game_it = game_map.find(game_id);
 	//Text formatting
@@ -155,6 +165,8 @@ void leaderboard::SummarizeVictory(int game_id, int vict_id){
 		std::cout<<i<<". "<<player_it->second->name<<std::endl;
 		i += 1;
 	}
+	int percentage = (100*vict_it->second.players.size())/(game_it->second.players.size());
+	std::cout<<"\n (*) "<<percentage<<"% of players have completed this victory"<<std::endl;
 	std::cout<<'\n';
 }
 void leaderboard::VictoryRanking(){
@@ -163,7 +175,7 @@ void leaderboard::VictoryRanking(){
 		ranking.insert(std::pair<int,player*>(player_it->second.points, &(player_it->second)));
 	}
 	int i = 1;
-	std::cout<<"\n Player \t\t Points"<<std::endl;
+	std::cout<<"Global Victory Ranking:\n Player \t\t Points"<<std::endl;
 	std::cout<<"______________________________________"<<std::endl;
 	for (auto player_it = ranking.rbegin(); player_it!= ranking.rend(); ++player_it){	//Print players in order
 		std::cout <<std::setw(1)<<std::left <<i<<". "<<player_it->second->name<<std::setw(23-player_it->second->name.length())<<" "<<player_it->second->points<<std::endl;
@@ -292,4 +304,5 @@ leaderboard::victory::victory(int game_id_num, int vict_id, std::string vict_nam
 	game_id = game_id_num;
 	name = vict_name;
 	points = vict_points;
+	victories = 0;
 }

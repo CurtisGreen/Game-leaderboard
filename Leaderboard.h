@@ -37,6 +37,7 @@ class leaderboard{
 		int game_id;
 		std::string name;
 		int points;
+		int victories; //Number of players that completed this victory
 		std::map<int,player*> players;
 	};
 	
