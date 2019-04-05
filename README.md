@@ -1,4 +1,4 @@
-# Leaderboard: Csce 315-503
+# Game Leaderboard:
 
 ### Usage
  * Takes input through standard input allowing it to read from a file or through user inputs
